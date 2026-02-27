@@ -1,0 +1,58 @@
+{
+  "name": "mcp-server-cloud-agent",
+  "version": "1.0.0",
+  "mcpName": "io.github.joepangallo/cloud-agent",
+  "description": "MCP server for Cloud Agent — an AI software engineer that writes code, opens PRs, reviews code, generates tests, runs security scans, and answers codebase questions. Connect from any MCP client (Claude Code, Cursor, Windsurf) and delegate engineering tasks.",
+  "bin": {
+    "mcp-server-cloud-agent": "index.js"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "ai-agent",
+    "ai-engineer",
+    "cloud-agent",
+    "code-generation",
+    "code-review",
+    "pull-request",
+    "github",
+    "test-generation",
+    "security-scan",
+    "codebase-qa",
+    "playbooks",
+    "devin-alternative",
+    "autonomous-agent",
+    "ai-tools",
+    "claude",
+    "claude-code",
+    "llm",
+    "llm-tools",
+    "software-engineer",
+    "ci-cd",
+    "slack-integration",
+    "dev-tools"
+  ],
+  "license": "MIT",
+  "author": "MetalTorque",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joepangallo/cloud-agent-consulting"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.0",
+    "zod": "^3.23.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "index.js",
+    "README.md",
+    "server.json",
+    "package.json"
+  ],
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}

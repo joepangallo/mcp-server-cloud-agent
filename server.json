@@ -1,0 +1,29 @@
+{
+  "name": "cloud-agent",
+  "display_name": "Cloud Agent",
+  "description": "AI software engineer — writes code, opens PRs, reviews code, generates tests, runs security scans, and answers codebase questions.",
+  "version": "1.0.0",
+  "transport": "stdio",
+  "tools": [
+    "run_task",
+    "review_pr",
+    "ask_codebase",
+    "generate_tests",
+    "security_scan",
+    "list_sessions",
+    "list_playbooks",
+    "run_playbook",
+    "get_usage"
+  ],
+  "environment_variables": {
+    "CLOUD_AGENT_API_KEY": {
+      "description": "API key for authenticating with Cloud Agent (ca_* prefix). Get one from the Cloud Agent web workspace.",
+      "required": true
+    },
+    "CLOUD_AGENT_URL": {
+      "description": "Cloud Agent backend URL. Defaults to https://cloud-agent-slack-production.up.railway.app",
+      "required": false,
+      "default": "https://cloudagent.metaltorque.dev"
+    }
+  }
+}
