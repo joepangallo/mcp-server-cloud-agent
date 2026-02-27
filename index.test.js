@@ -822,7 +822,7 @@ describe('Server metadata', () => {
 
 // ── Live smoke tests (skip unless API key provided) ─────────────────
 
-const LIVE_URL = process.env.CLOUD_AGENT_URL || 'https://cloud-agent-slack-production.up.railway.app';
+const LIVE_URL = process.env.CLOUD_AGENT_URL || 'https://cloudagent.metaltorque.dev';
 const LIVE_KEY = process.env.CLOUD_AGENT_API_KEY || '';
 const runLive = LIVE_KEY.length > 0;
 
