@@ -784,25 +784,39 @@ describe('Package metadata', () => {
 // ── server.json correctness ─────────────────────────────────────────
 
 describe('Server metadata', () => {
-  it('server.json has correct name and transport', async () => {
+  it('server.json has correct name and schema', async () => {
     const { readFileSync } = await import('fs');
     const meta = JSON.parse(readFileSync(join(__dirname, 'server.json'), 'utf8'));
-    expect(meta.name).toBe('cloud-agent');
-    expect(meta.transport).toBe('stdio');
+    expect(meta.name).toBe('io.github.joepangallo/cloud-agent');
+    expect(meta.$schema).toContain('modelcontextprotocol.io');
   });
 
-  it('server.json lists all 9 tools', async () => {
+  it('server.json has packages array with npm + stdio transport', async () => {
     const { readFileSync } = await import('fs');
     const meta = JSON.parse(readFileSync(join(__dirname, 'server.json'), 'utf8'));
-    expect(meta.tools).toHaveLength(9);
-    expect(meta.tools).toContain('run_task');
-    expect(meta.tools).toContain('get_usage');
+    expect(meta.packages).toHaveLength(1);
+    expect(meta.packages[0].registryType).toBe('npm');
+    expect(meta.packages[0].identifier).toBe('mcp-server-cloud-agent');
+    expect(meta.packages[0].transport.type).toBe('stdio');
   });
 
-  it('server.json default URL points to VPS', async () => {
+  it('server.json env vars mark API key as required and secret', async () => {
     const { readFileSync } = await import('fs');
     const meta = JSON.parse(readFileSync(join(__dirname, 'server.json'), 'utf8'));
-    expect(meta.environment_variables.CLOUD_AGENT_URL.default).toBe('https://cloudagent.metaltorque.dev');
+    const envVars = meta.packages[0].environmentVariables;
+    const apiKey = envVars.find(v => v.name === 'CLOUD_AGENT_API_KEY');
+    const url = envVars.find(v => v.name === 'CLOUD_AGENT_URL');
+    expect(apiKey.isRequired).toBe(true);
+    expect(apiKey.isSecret).toBe(true);
+    expect(url.isRequired).toBe(false);
+    expect(url.description).toContain('cloudagent.metaltorque.dev');
+  });
+
+  it('server.json repository points to public repo', async () => {
+    const { readFileSync } = await import('fs');
+    const meta = JSON.parse(readFileSync(join(__dirname, 'server.json'), 'utf8'));
+    expect(meta.repository.url).toBe('https://github.com/joepangallo/mcp-server-cloud-agent');
+    expect(meta.repository.source).toBe('github');
   });
 });
 

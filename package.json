@@ -37,7 +37,7 @@
   "author": "MetalTorque",
   "repository": {
     "type": "git",
-    "url": "https://github.com/joepangallo/cloud-agent-consulting"
+    "url": "https://github.com/joepangallo/mcp-server-cloud-agent"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.0",
