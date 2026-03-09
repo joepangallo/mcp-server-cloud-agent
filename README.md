@@ -4,6 +4,10 @@ MCP server for **Cloud Agent** — a hosted AI software engineer that writes cod
 
 Connect from any MCP client (Claude Code, Cursor, Windsurf, or your own agents) and delegate engineering tasks.
 
+<a href="https://glama.ai/mcp/servers/joepangallo/cloud-agent">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/joepangallo/cloud-agent/badge" alt="Cloud Agent MCP server" />
+</a>
+
 ## How it works
 
 This package is a **local stdio MCP proxy** that forwards requests to the Cloud Agent hosted backend at `cloudagent.metaltorque.dev`. Your MCP client communicates with this server over stdio; the server makes authenticated HTTPS calls to the backend on your behalf.
