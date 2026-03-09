@@ -1,28 +1,43 @@
 # mcp-server-cloud-agent
 
-MCP server for **Cloud Agent** — an AI software engineer that writes code, opens PRs, reviews code, generates tests, runs security scans, and answers codebase questions.
+MCP server for **Cloud Agent** — a hosted AI software engineer that writes code, opens PRs, reviews code, generates tests, runs security scans, and answers codebase questions.
 
 Connect from any MCP client (Claude Code, Cursor, Windsurf, or your own agents) and delegate engineering tasks.
 
+## How it works
+
+This package is a **local stdio MCP proxy** that forwards requests to the Cloud Agent hosted backend at `cloudagent.metaltorque.dev`. Your MCP client communicates with this server over stdio; the server makes authenticated HTTPS calls to the backend on your behalf.
+
+**Data flow:** MCP client → (stdio) → this server → (HTTPS) → Cloud Agent backend → GitHub
+
+**What data leaves your machine:**
+- Task descriptions, repo names, file paths, and PR URLs you provide
+- Your API key (sent over HTTPS only, never over HTTP)
+
+**What the backend does with your data:**
+- Clones repos from GitHub using its own GitHub App credentials
+- Executes tasks in isolated sandboxes
+- Opens PRs and posts reviews to GitHub on your behalf
+
 ## Tools (9)
 
-| Tool | Description |
-|------|-------------|
-| `run_task` | Write code, fix bugs, add features — returns result + PR URL |
-| `review_pr` | Review a GitHub PR with structured feedback, optionally post to GitHub |
-| `ask_codebase` | Ask questions about any GitHub repo (auto-indexes on first use) |
-| `generate_tests` | Generate tests for a file or feature, opens a PR |
-| `security_scan` | Security + dependency scan across one or more repos |
-| `list_sessions` | List recent sessions with status, cost, duration, PR URLs |
-| `list_playbooks` | List available workflow templates (bug-triage, test-coverage, etc.) |
-| `run_playbook` | Run a playbook against a repo |
-| `get_usage` | Usage stats — sessions, cost, time saved, breakdowns |
+| Tool | Description | Side effects |
+|------|-------------|--------------|
+| `run_task` | Write code, fix bugs, add features — returns result + PR URL | Creates branches and PRs |
+| `review_pr` | Review a GitHub PR with structured feedback | Optionally posts comments to GitHub |
+| `ask_codebase` | Ask questions about any GitHub repo (auto-indexes on first use) | Read-only |
+| `generate_tests` | Generate tests for a file, opens a PR | Creates branches and PRs |
+| `security_scan` | Security + dependency scan across one or more repos | Read-only |
+| `list_sessions` | List recent sessions with status, cost, duration, PR URLs | Read-only |
+| `list_playbooks` | List available workflow templates | Read-only |
+| `run_playbook` | Run a playbook against a repo | Creates branches and PRs |
+| `get_usage` | Usage stats — sessions, cost, time saved, breakdowns | Read-only |
 
 ## Setup
 
 ### 1. Get an API key
 
-Sign in to your Cloud Agent web workspace and generate an API key at `/auth/api-key`.
+Sign in to your Cloud Agent workspace at [cloudagent.metaltorque.dev](https://cloudagent.metaltorque.dev) and generate an API key at `/auth/api-key`. Keys use the `ca_*` prefix.
 
 ### 2. Configure your MCP client
 
@@ -68,28 +83,51 @@ Sign in to your Cloud Agent web workspace and generate an API key at `/auth/api-
 Once configured, your MCP client can call these tools directly:
 
 **Fix a bug:**
-> "Use cloud-agent to fix the broken login flow in myorg/myapp"
+> "Use cloud-agent run_task on myorg/myapp to fix the broken login flow"
 
 **Review a PR:**
-> "Use cloud-agent to review https://github.com/myorg/myapp/pull/42"
+> "Use cloud-agent review_pr on https://github.com/myorg/myapp/pull/42"
 
 **Ask about code:**
-> "Use cloud-agent to explain how authentication works in myorg/myapp"
+> "Use cloud-agent ask_codebase on myorg/myapp: how does authentication work?"
 
 **Generate tests:**
-> "Use cloud-agent to generate tests for src/auth.ts in myorg/myapp"
+> "Use cloud-agent generate_tests on myorg/myapp for src/auth.ts"
 
 **Security scan:**
-> "Use cloud-agent to scan myorg/myapp and myorg/api for vulnerabilities"
+> "Use cloud-agent security_scan on myorg/myapp and myorg/api"
 
-**Run a playbook:**
-> "Use cloud-agent to run the bug-triage playbook on myorg/myapp"
+## Sample Output
 
-## What is Cloud Agent?
+**run_task response:**
+```json
+{
+  "response": "Fixed the login redirect bug. Changed src/auth.ts to properly handle OAuth callback URLs.",
+  "cost_usd": 0.42,
+  "duration_ms": 45000,
+  "pr_url": "https://github.com/myorg/myapp/pull/87"
+}
+```
 
-Cloud Agent is a Devin-alternative that puts an AI software engineer where your team already works — Slack, Teams, Jira, Linear, and 12 more platforms. It writes code, opens PRs, reviews code, generates tests, runs security scans, and answers codebase questions.
+**security_scan response:**
+```json
+{
+  "repos_scanned": 1,
+  "vulnerabilities": 3,
+  "secrets_found": 0,
+  "findings": [...]
+}
+```
 
-This MCP server gives any MCP-compatible AI client the same capabilities.
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| "CLOUD_AGENT_API_KEY is required" | Set the env var in your MCP client config |
+| "Refusing to send API key over insecure HTTP" | Use HTTPS (the default). Don't set `CLOUD_AGENT_URL` to an HTTP URL |
+| "Request timed out" | Tasks can take up to 10 minutes. Check `list_sessions` for status |
+| "HTTP 401" | Your API key is invalid or expired. Generate a new one |
+| "HTTP 429" | Rate limited. Wait and retry |
 
 ## License
 
