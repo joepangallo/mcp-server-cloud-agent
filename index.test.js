@@ -78,11 +78,13 @@ function mockOversizedResponse() {
 // communicate via JSON-RPC over stdio. This tests the real MCP protocol.
 
 import { spawn } from 'child_process';
+import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const INDEX_PATH = join(__dirname, 'index.js');
+const PKG = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf8'));
 
 function spawnMcp(env = {}) {
   const proc = spawn('node', [INDEX_PATH], {
@@ -166,7 +168,7 @@ describe('MCP protocol: initialization', () => {
     try {
       const res = await initMcp(proc);
       expect(res.result.serverInfo.name).toBe('cloud-agent');
-      expect(res.result.serverInfo.version).toBe('1.0.0');
+      expect(res.result.serverInfo.version).toBe(PKG.version);
       expect(res.result.capabilities.tools).toBeDefined();
     } finally {
       proc.kill();
@@ -215,14 +217,16 @@ describe('MCP protocol: tools/list', () => {
 // ── Tool input schema validation ────────────────────────────────────
 
 describe('MCP protocol: tool input schemas', () => {
-  it('run_task requires prompt (string)', async () => {
+  it('run_task requires repo and task', async () => {
     const proc = spawnMcp({ CLOUD_AGENT_API_KEY: '', CLOUD_AGENT_URL: 'https://localhost:9999' });
     try {
       await initMcp(proc);
       const res = await listTools(proc);
       const tool = res.result.tools.find(t => t.name === 'run_task');
-      expect(tool.inputSchema.properties.prompt).toBeDefined();
-      expect(tool.inputSchema.required).toContain('prompt');
+      expect(tool.inputSchema.properties.repo).toBeDefined();
+      expect(tool.inputSchema.properties.task).toBeDefined();
+      expect(tool.inputSchema.required).toContain('repo');
+      expect(tool.inputSchema.required).toContain('task');
     } finally {
       proc.kill();
     }
@@ -255,15 +259,15 @@ describe('MCP protocol: tool input schemas', () => {
     }
   });
 
-  it('generate_tests requires repo, optional file/feature', async () => {
+  it('generate_tests requires repo and file', async () => {
     const proc = spawnMcp({ CLOUD_AGENT_API_KEY: '', CLOUD_AGENT_URL: 'https://localhost:9999' });
     try {
       await initMcp(proc);
       const res = await listTools(proc);
       const tool = res.result.tools.find(t => t.name === 'generate_tests');
       expect(tool.inputSchema.required).toContain('repo');
+      expect(tool.inputSchema.required).toContain('file');
       expect(tool.inputSchema.properties.file).toBeDefined();
-      expect(tool.inputSchema.properties.feature).toBeDefined();
     } finally {
       proc.kill();
     }
@@ -339,7 +343,7 @@ describe('MCP protocol: tool input schemas', () => {
 
 describe('MCP protocol: no API key returns error for all tools', () => {
   const toolCalls = [
-    ['run_task', { prompt: 'test' }],
+    ['run_task', { repo: 'a/b', task: 'test' }],
     ['review_pr', { pr_url: 'https://github.com/a/b/pull/1' }],
     ['ask_codebase', { question: 'how', repo: 'a/b' }],
     ['generate_tests', { repo: 'a/b', file: 'src/x.ts' }],
@@ -366,16 +370,17 @@ describe('MCP protocol: no API key returns error for all tools', () => {
   }
 });
 
-// ── generate_tests missing file+feature ─────────────────────────────
+// ── generate_tests missing file ─────────────────────────────────────
 
 describe('MCP protocol: generate_tests validation', () => {
-  it('returns error when neither file nor feature provided', async () => {
+  it('returns a schema error when file is missing', async () => {
     const proc = spawnMcp({ CLOUD_AGENT_API_KEY: 'ca_test', CLOUD_AGENT_URL: 'https://localhost:9999' });
     try {
       await initMcp(proc);
       const res = await callTool(proc, 'generate_tests', { repo: 'a/b' });
       const text = res.result.content[0].text;
-      expect(text).toContain("'file' or 'feature'");
+      expect(text).toContain('"file"');
+      expect(text).toContain('Required');
     } finally {
       proc.kill();
     }
@@ -611,25 +616,16 @@ describe('Tool response formatting', () => {
     expect(body.type).toBe('dependencies');
   });
 
-  it('generate_tests picks file over feature', () => {
+  it('generate_tests passes the requested file path through unchanged', () => {
     const file = 'src/auth.ts';
-    const feature = 'auth';
-    const target = file || feature;
+    const body = { repo: 'a/b', file };
+    const target = body.file;
     expect(target).toBe('src/auth.ts');
   });
 
-  it('generate_tests picks feature when no file', () => {
-    const file = undefined;
-    const feature = 'auth';
-    const target = file || feature;
-    expect(target).toBe('auth');
-  });
-
-  it('generate_tests detects no target', () => {
-    const file = undefined;
-    const feature = undefined;
-    const target = file || feature;
-    expect(target).toBeFalsy();
+  it('generate_tests omits no fallback target when file is missing', () => {
+    const body = { repo: 'a/b' };
+    expect(body.file).toBeUndefined();
   });
 });
 
@@ -902,7 +898,7 @@ describe.skipIf(!runLive)('Live smoke tests (requires CLOUD_AGENT_API_KEY)', () 
     expect(res.body).toHaveProperty('error');
   });
 
-  it('POST /test without file/feature returns 400', async () => {
+  it('POST /test without file returns 400', async () => {
     const res = await liveRequest('POST', '/test', { repo: 'a/b' });
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty('error');
@@ -1141,9 +1137,9 @@ describe('Security — Information Disclosure', () => {
   });
 
   it('server version exposed is package version only', () => {
-    // User-Agent header: mcp-server-cloud-agent/1.0.0
+    // User-Agent header: mcp-server-cloud-agent/<package version>
     // This is standard practice and does not leak internal info
-    const ua = `mcp-server-cloud-agent/1.0.0`;
+    const ua = `mcp-server-cloud-agent/${PKG.version}`;
     expect(ua).not.toContain('node');
     expect(ua).not.toContain('linux');
     expect(ua).not.toContain('/Users/');
