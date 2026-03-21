@@ -457,7 +457,7 @@ describe('Security', () => {
   });
 
   it('default BASE_URL uses HTTPS', () => {
-    const defaultUrl = 'https://cloudagent.metaltorque.dev';
+    const defaultUrl = 'https://agent.leddconsulting.com';
     expect(defaultUrl.startsWith('https://')).toBe(true);
   });
 });
@@ -632,13 +632,13 @@ describe('Tool response formatting', () => {
 // ── Config defaults ─────────────────────────────────────────────────
 
 describe('Config defaults', () => {
-  it('default BASE_URL is cloudagent.metaltorque.dev', () => {
-    const defaultUrl = (undefined || 'https://cloudagent.metaltorque.dev').replace(/\/$/, '');
-    expect(defaultUrl).toBe('https://cloudagent.metaltorque.dev');
+  it('default BASE_URL is agent.leddconsulting.com', () => {
+    const defaultUrl = (undefined || 'https://agent.leddconsulting.com').replace(/\/$/, '');
+    expect(defaultUrl).toBe('https://agent.leddconsulting.com');
   });
 
   it('custom URL overrides default', () => {
-    const customUrl = ('https://custom.example.com/' || 'https://cloudagent.metaltorque.dev').replace(/\/$/, '');
+    const customUrl = ('https://custom.example.com/' || 'https://agent.leddconsulting.com').replace(/\/$/, '');
     expect(customUrl).toBe('https://custom.example.com');
   });
 
@@ -805,7 +805,7 @@ describe('Server metadata', () => {
     expect(apiKey.isRequired).toBe(true);
     expect(apiKey.isSecret).toBe(true);
     expect(url.isRequired).toBe(false);
-    expect(url.description).toContain('cloudagent.metaltorque.dev');
+    expect(url.description).toContain('agent.leddconsulting.com');
   });
 
   it('server.json repository points to public repo', async () => {
@@ -818,7 +818,7 @@ describe('Server metadata', () => {
 
 // ── Live smoke tests (skip unless API key provided) ─────────────────
 
-const LIVE_URL = process.env.CLOUD_AGENT_URL || 'https://cloudagent.metaltorque.dev';
+const LIVE_URL = process.env.CLOUD_AGENT_URL || 'https://agent.leddconsulting.com';
 const LIVE_KEY = process.env.CLOUD_AGENT_API_KEY || '';
 const runLive = LIVE_KEY.length > 0;
 
@@ -967,11 +967,11 @@ describe('Security — SSRF Prevention', () => {
     // The BASE_URL is set at module load from env var, NOT from tool inputs.
     // Tool inputs only provide path segments (prompt, repo, slug) — never the host.
     // This prevents SSRF via user-controlled URLs.
-    const BASE_URL = 'https://cloudagent.metaltorque.dev';
+    const BASE_URL = 'https://agent.leddconsulting.com';
     const userPrompt = 'http://169.254.169.254/latest/meta-data/'; // AWS metadata
     const fullUrl = `${BASE_URL}/query`; // User input goes in body, not URL
     expect(fullUrl).not.toContain('169.254');
-    expect(fullUrl).toContain('cloudagent.metaltorque.dev');
+    expect(fullUrl).toContain('agent.leddconsulting.com');
   });
 
   it('user input is sent in POST body, never in hostname', () => {

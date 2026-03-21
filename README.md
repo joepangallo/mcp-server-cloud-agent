@@ -6,7 +6,7 @@ Connect from any MCP client (Claude Code, Cursor, Windsurf, or your own agents) 
 
 ## How it works
 
-This package is a **local stdio MCP proxy** that forwards requests to the Cloud Agent hosted backend at `cloudagent.metaltorque.dev`. Your MCP client communicates with this server over stdio; the server makes authenticated HTTPS calls to the backend on your behalf.
+This package is a **local stdio MCP proxy** that forwards requests to the Cloud Agent hosted backend at `agent.leddconsulting.com`. Your MCP client communicates with this server over stdio; the server makes authenticated HTTPS calls to the backend on your behalf.
 
 **Data flow:** MCP client → (stdio) → this server → (HTTPS) → Cloud Agent backend → GitHub
 
@@ -37,7 +37,7 @@ This package is a **local stdio MCP proxy** that forwards requests to the Cloud 
 
 ### 1. Get an API key
 
-Sign in to your Cloud Agent workspace at [cloudagent.metaltorque.dev](https://cloudagent.metaltorque.dev) and generate an API key at `/auth/api-key`. Keys use the `ca_*` prefix.
+Sign in to your Cloud Agent workspace at [agent.leddconsulting.com](https://agent.leddconsulting.com) and generate an API key at `/auth/api-key`. Keys use the `ca_*` prefix.
 
 ### 2. Configure your MCP client
 
@@ -76,7 +76,7 @@ Sign in to your Cloud Agent workspace at [cloudagent.metaltorque.dev](https://cl
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `CLOUD_AGENT_API_KEY` | Yes | API key (`ca_*` prefix) from your Cloud Agent workspace |
-| `CLOUD_AGENT_URL` | No | Backend URL (defaults to `https://cloudagent.metaltorque.dev`) |
+| `CLOUD_AGENT_URL` | No | Backend URL (defaults to `https://agent.leddconsulting.com`) |
 
 ## Usage Examples
 

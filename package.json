@@ -1,6 +1,6 @@
 {
   "name": "mcp-server-cloud-agent",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "mcpName": "io.github.joepangallo/cloud-agent",
   "description": "MCP server for Cloud Agent — an AI software engineer that writes code, opens PRs, reviews code, generates tests, runs security scans, and answers codebase questions. Connect from any MCP client (Claude Code, Cursor, Windsurf) and delegate engineering tasks.",
   "bin": {

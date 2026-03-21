@@ -6,12 +6,12 @@
     "url": "https://github.com/joepangallo/mcp-server-cloud-agent",
     "source": "github"
   },
-  "version": "1.1.0",
+  "version": "1.1.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "mcp-server-cloud-agent",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "transport": {
         "type": "stdio"
       },
@@ -24,7 +24,7 @@
           "name": "CLOUD_AGENT_API_KEY"
         },
         {
-          "description": "Cloud Agent backend URL. Defaults to https://cloudagent.metaltorque.dev",
+          "description": "Cloud Agent backend URL. Defaults to https://agent.leddconsulting.com",
           "isRequired": false,
           "format": "string",
           "isSecret": false,

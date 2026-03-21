@@ -10,7 +10,7 @@ const { version } = require("./package.json");
 // ── Config ──────────────────────────────────────────────────────────
 
 const API_KEY = process.env.CLOUD_AGENT_API_KEY || "";
-const BASE_URL = (process.env.CLOUD_AGENT_URL || "https://cloudagent.metaltorque.dev").replace(/\/$/, "");
+const BASE_URL = (process.env.CLOUD_AGENT_URL || "https://agent.leddconsulting.com").replace(/\/$/, "");
 
 // ── Shared schemas ──────────────────────────────────────────────────
 
