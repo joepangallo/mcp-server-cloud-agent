@@ -8,6 +8,8 @@ Connect from any MCP client (Claude Code, Cursor, Windsurf, or your own agents) 
 
 This package is a **local stdio MCP proxy** that forwards requests to the Cloud Agent hosted backend at `agent.leddconsulting.com`. Your MCP client communicates with this server over stdio; the server makes authenticated HTTPS calls to the backend on your behalf.
 
+Legacy `cloudagent.metaltorque.dev` URLs still redirect, but new configs should use `agent.leddconsulting.com`.
+
 **Data flow:** MCP client → (stdio) → this server → (HTTPS) → Cloud Agent backend → GitHub
 
 **What data leaves your machine:**
